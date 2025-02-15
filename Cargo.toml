@@ -1,0 +1,17 @@
+[package]
+name = "chatbot_api"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = "0.7"
+tokio = { version = "1.43", features = ["full", "rt-multi-thread", "process"] }
+futures = "0.3"
+hyper-util = { version = "0.1", features = ["tokio", "server"] }
+tokio-stream = { version = "0.1", features = ["io-util"] }
+serde = { version = "1.0.217", features = ["derive"] }
+serde_json = "1.0.138"
+async-stream = "0.3.6"
+reqwest = { version = "0.12.12", features = ["stream", "json"] }
+regex = "1.11.1"
+rand = "0.9.0"
