@@ -3,11 +3,12 @@ use axum::{
     Router,
     extract::Query,
     response::{Html, IntoResponse, Response},
-    http::{header, StatusCode},
+    http::{header, StatusCode, Method},  // Use `http::Method` here
 };
 use std::{collections::HashMap, pin::Pin, net::SocketAddr};
 use futures::{Stream, StreamExt};
 use serde::{Deserialize, Serialize};
+use tower_http::cors::{CorsLayer, Any};
 use tokio::net::TcpListener;
 use reqwest::Client;
 use tokio_stream::wrappers::ReceiverStream;
@@ -52,9 +53,15 @@ struct ChatMessage {
 
 #[tokio::main]
 async fn main() {
+    let cors = CorsLayer::new()
+        .allow_origin(Any)  // ✅ Allows any frontend to connect
+        .allow_methods(vec![Method::GET, Method::POST])  // ✅ Use `http::Method` here
+        .allow_headers([header::CONTENT_TYPE]);  // ✅ Allow Content-Type headers
+
     let app = Router::new()
         .route("/", get(index_handler))  
-        .route("/chat", get(chat_handler));
+        .route("/chat", get(chat_handler))
+        .layer(cors); // ✅ CORS now correctly attached
 
     let addr: SocketAddr = "0.0.0.0:8000".parse().unwrap();
     println!("🚀 Chatbot running at http://{}", addr);
