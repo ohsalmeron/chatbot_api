@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lightweight ChatGPT Clone</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: 20px auto;
+    }
+    #chat-container {
+      border: 1px solid #ccc;
+      padding: 1em;
+      min-height: 200px;
+      white-space: pre-wrap;  /* preserve line breaks */
+      margin-bottom: 1em;
+    }
+  </style>
+</head>
+<body>
+  <h1>Lightweight ChatGPT Clone</h1>
+  <div id="chat-container"></div>
+  <input type="text" id="prompt" placeholder="Ask me anything..." style="width:80%;" />
+  <button id="send-button">Send</button>
+
+  <script>
+    const chatContainer = document.getElementById("chat-container");
+    const promptInput = document.getElementById("prompt");
+    const sendButton = document.getElementById("send-button");
+
+    sendButton.addEventListener("click", async () => {
+        const prompt = promptInput.value.trim();
+        if (!prompt) return;
+
+        chatContainer.textContent = "Thinking...\n";
+        promptInput.value = "";
+
+        try {
+            const response = await fetch(`/chat?prompt=${encodeURIComponent(prompt)}`);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                chatContainer.textContent = "Error: " + errorText;
+                return;
+            }
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) {
+                    break;
+                }
+
+                // ✅ Append each word immediately to simulate real-time typing
+                chatContainer.textContent += decoder.decode(value, { stream: true });
+            }
+        } catch (error) {
+            chatContainer.textContent = `Request failed: ${error}`;
+        }
+    });
+</script>
+
+</body>
+</html>
